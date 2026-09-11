@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PakDee English — ระบบเรียนภาษาอังกฤษเน้นพัฒนาการ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Mitr:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --cream: #FFF6E9;
+    --ink: #211812;
+    --orange: #FF6B00;
+    --orange-dark: #E05300;
+    --peel: #FFB35C;
+    --leaf: #4FA35C;
+    --yellow: #FFC700;
+    --mint: #34D399;
+    --lav: #818CF8;
+    --pink: #FF5E97;
+    --red: #EF4444;
+    --card: #FFFFFF;
+    --dark-card: #1E1B18;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  
+  body {
+    margin: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Mitr', sans-serif;
+    line-height: 1.6;
+    padding-bottom: 60px;
+  }
+  
+  h1, h2, h3, h4 { font-family: 'Fredoka', 'Mitr', sans-serif; margin: 0; }
+
+  .nav {
+    position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 24px; background: rgba(255,246,233,.98); backdrop-filter: blur(8px); border-bottom: 3.5px solid var(--ink);
+  }
+  .logo { font-family: 'Fredoka'; font-weight: 700; font-size: 1.4rem; display: flex; align-items: center; gap: 8px; }
+  .user-info { display: flex; align-items: center; gap: 12px; }
+  .badge { background: var(--yellow); border: 2.5px solid var(--ink); padding: 2px 10px; border-radius: 999px; font-size: .85rem; font-weight: 600; }
+  .btn-logout { background: var(--red); color: #fff; border: 2.5px solid var(--ink); padding: 4px 12px; border-radius: 10px; cursor: pointer; font-family: 'Mitr'; font-weight: 500; }
+
+  .container { max-width: 1050px; margin: 0 auto; padding: 20px; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* AUTH CARD */
+  .auth-card {
+    max-width: 460px; margin: 30px auto; background: var(--card); border: 3.5px solid var(--ink);
+    border-radius: 28px; padding: 28px; box-shadow: 8px 8px 0 var(--ink); text-align: center;
+  }
+  .auth-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+  .auth-tab { flex: 1; padding: 8px; border: none; background: none; font-family: 'Mitr'; font-size: 1rem; cursor: pointer; font-weight: 500; color: #888; }
+  .auth-tab.active { color: var(--orange); font-weight: 600; border-bottom: 3px solid var(--orange); }
+  
+  .role-selector { display: flex; gap: 10px; margin: 15px 0; }
+  .role-btn {
+    flex: 1; padding: 8px; border: 2.5px solid var(--ink); border-radius: 12px; background: #fff;
+    cursor: pointer; font-family: 'Mitr'; font-weight: 500; transition: .2s;
+  }
+  .role-btn.active { background: var(--orange); color: #fff; box-shadow: 2px 2px 0 var(--ink); }
+
+  .form-group { text-align: left; margin-bottom: 12px; }
+  .form-group label { display: block; margin-bottom: 4px; font-size: .88rem; font-weight: 500; }
+  .form-group input { width: 100%; padding: 10px 14px; border: 2.5px solid var(--ink); border-radius: 12px; font-family: 'Mitr'; font-size: .95rem; }
+  
+  .btn-primary {
+    width: 100%; padding: 12px; background: var(--orange); color: #fff; border: 3px solid var(--ink);
+    border-radius: 16px; font-family: 'Mitr'; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 4px 4px 0 var(--ink);
+    margin-top: 10px;
+  }
+  .btn-primary:hover { background: var(--orange-dark); }
+
+  /* SUB-NAV INSIDE GAMES */
+  .game-tabs { display: flex; gap: 8px; margin-bottom: 20px; background: #fff; padding: 8px; border-radius: 16px; border: 3px solid var(--ink); overflow-x: auto; }
+  .game-tab-btn { flex: 1; padding: 10px 16px; border: 2.5px solid transparent; border-radius: 12px; background: none; font-family: 'Mitr'; font-weight: 600; cursor: pointer; white-space: nowrap; text-align: center; }
+  .game-tab-btn.active { background: var(--yellow); border-color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+
+  .unit-selector { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+  .unit-btn {
+    background: #fff; border: 2.5px solid var(--ink); border-radius: 12px; padding: 8px 16px;
+    font-family: 'Mitr'; font-weight: 500; cursor: pointer; white-space: nowrap;
+  }
+  .unit-btn.active { background: var(--yellow); font-weight: 600; box-shadow: 2px 2px 0 var(--ink); }
+
+  /* CARDS */
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .box-card {
+    background: var(--card); border: 3.5px solid var(--ink); border-radius: 24px; padding: 24px;
+    box-shadow: 6px 6px 0 var(--ink); margin-bottom: 24px; position: relative;
+  }
+
+  .badge-pill {
+    display: inline-block; background: var(--leaf); color: #fff; padding: 4px 14px; border-radius: 999px;
+    font-size: .85rem; font-weight: 600; border: 2px solid var(--ink); margin-bottom: 12px;
+  }
+
+  /* 12-PAIR MATCHING GAME GRID */
+  .match-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+  @media (max-width: 768px) { .match-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 480px) { .match-grid { grid-template-columns: repeat(2, 1fr); } }
+  .match-card {
+    background: #fff; border: 3px solid var(--ink); border-radius: 16px; padding: 14px 8px;
+    text-align: center; font-weight: 600; font-size: .95rem; cursor: pointer; box-shadow: 3px 3px 0 var(--ink);
+    user-select: none; transition: transform .1s; min-height: 70px; display: flex; align-items: center; justify-content: center;
+  }
+  .match-card:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+  .match-card.selected { background: var(--peel); color: #fff; }
+  .match-card.matched { background: var(--mint); color: #000; opacity: .5; pointer-events: none; }
+
+  /* CALL SCREEN */
+  .call-container {
+    background: var(--dark-card); border: 4px solid var(--ink); border-radius: 32px;
+    max-width: 420px; margin: 0 auto; overflow: hidden; box-shadow: 8px 8px 0 var(--ink);
+    position: relative; color: #fff; text-align: center;
+  }
+  .call-header { padding: 12px; font-size: .85rem; color: #aaa; background: rgba(0,0,0,.3); display: flex; justify-content: space-between; align-items: center; }
+  .call-avatar-wrap { padding: 25px 20px; position: relative; }
+  .call-avatar {
+    width: 130px; height: 130px; background: linear-gradient(135deg, var(--orange), var(--yellow));
+    border-radius: 50%; border: 4px solid #fff; margin: 0 auto; display: flex; align-items: center;
+    justify-content: center; font-size: 4rem; box-shadow: 0 10px 25px rgba(0,0,0,.5);
+    transition: transform .2s;
+  }
+  .call-avatar.speaking { animation: pulse 0.6s infinite alternate; }
+  @keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,107,0,0.7); }
+    100% { transform: scale(1.08); box-shadow: 0 0 0 20px rgba(255,107,0,0); }
+  }
+
+  .call-subtitles {
+    min-height: 65px; background: rgba(0,0,0,.6); padding: 12px 18px; margin: 10px 15px;
+    border-radius: 16px; font-size: .9rem; border: 1.5px solid rgba(255,255,255,.2);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .call-actions { padding: 18px; display: flex; justify-content: center; gap: 20px; align-items: center; background: rgba(0,0,0,.4); }
+  .btn-call-action {
+    width: 55px; height: 55px; border-radius: 50%; border: 3px solid var(--ink);
+    display: flex; align-items: center; justify-content: center; font-size: 1.4rem; cursor: pointer;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .btn-accept { background: var(--mint); color: #fff; }
+  .btn-decline { background: var(--red); color: #fff; }
+  .btn-mic { background: var(--lav); color: #fff; }
+
+  /* BUILDER UI WITH FREE-TEXT INPUT */
+  .interactive-box { background: #EEECFF; border: 3.5px solid var(--ink); border-radius: 24px; padding: 24px; box-shadow: 6px 6px 0 var(--ink); }
+  .builder-select { padding: 8px 12px; border: 2.5px solid var(--ink); border-radius: 12px; font-family: 'Mitr'; font-size: .95rem; font-weight: 600; background: #fff; }
+  .builder-input { padding: 8px 12px; border: 2.5px solid var(--ink); border-radius: 12px; font-family: 'Mitr'; font-size: .95rem; width: 180px; }
+
+  /* EMOJI RATING SYSTEM */
+  .emoji-rating { display: flex; justify-content: space-around; margin: 15px 0; background: #FFF0DA; padding: 15px; border-radius: 20px; border: 3.5px solid var(--ink); }
+  .emoji-btn { font-size: 2.2rem; cursor: pointer; transition: transform .2s, filter .2s; filter: grayscale(80%); opacity: .6; border: none; background: none; }
+  .emoji-btn.selected { filter: grayscale(0%); opacity: 1; transform: scale(1.3); }
+  .emoji-btn:hover { transform: scale(1.2); }
+
+  /* TEACHER TABLE */
+  .data-table { width: 100%; border-collapse: collapse; background: #fff; border: 3px solid var(--ink); border-radius: 16px; overflow: hidden; }
+  .data-table th, .data-table td { padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--ink); font-size: .9rem; }
+  .data-table th { background: #FFF0DA; }
+  .chip-tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: .8rem; font-weight: 600; border: 1.5px solid var(--ink); }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="logo">🍊 PakDee<span style="color:var(--orange)">English</span></div>
+  <div class="user-info" id="navUserInfo" style="display: none;">
+    <span class="badge" id="userRoleBadge">นักเรียน</span>
+    <span id="userNameDisplay" style="font-weight: 600;">-</span>
+    <button class="btn-logout" onclick="logout()">ออกจากระบบ</button>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- AUTH VIEW -->
+  <div id="authView" class="view active">
+    <div class="auth-card">
+      <h2>PakDee English 🍊</h2>
+      <p style="font-size: .85rem; color: #666; margin-top: 4px;">แพลตฟอร์มวิจัยพัฒนาความมั่นใจภาษาอังกฤษ</p>
+      
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabBtnLogin" onclick="switchAuthMode('login')">เข้าสู่ระบบ</button>
+        <button class="auth-tab" id="tabBtnRegister" onclick="switchAuthMode('register')">สร้างบัญชีใหม่</button>
+      </div>
+
+      <div class="role-selector">
+        <button class="role-btn active" id="btnRoleStudent" onclick="setRole('student')">👨‍🎓 นักเรียน</button>
+        <button class="role-btn" id="btnRoleTeacher" onclick="setRole('teacher')">👩‍🏫 คุณครู</button>
+      </div>
+
+      <form onsubmit="handleAuthSubmit(event)">
+        <div class="form-group" id="groupStudentId" style="display:none;">
+          <label>เลขที่ / รหัสนักเรียน (1-100)</label>
+          <input type="number" id="txtStudentId" min="1" max="100" placeholder="เช่น 1, 25, 99">
+        </div>
+
+        <div class="form-group" id="groupName" style="display:none;">
+          <label>ชื่อ-นามสกุล</label>
+          <input type="text" id="txtName" placeholder="เช่น ด.ช. ก้องเกียรติ รักดี">
+        </div>
+
+        <div class="form-group">
+          <label>ชื่อผู้ใช้งาน (Username)</label>
+          <input type="text" id="txtUsername" required placeholder="กรอกชื่อผู้ใช้งาน...">
+        </div>
+
+        <div class="form-group">
+          <label>รหัสผ่าน (Password)</label>
+          <input type="password" id="txtPassword" required placeholder="••••••••">
+        </div>
+
+        <button type="submit" class="btn-primary" id="btnAuthSubmit">เข้าสู่ระบบ 🚀</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN APP VIEW -->
+  <div id="appView" class="view">
+    
+    <!-- STATS DASHBOARD -->
+    <div class="grid-3" style="margin-bottom: 20px;">
+      <div class="box-card" style="margin:0; padding:16px 20px;">
+        <div style="font-size:.85rem; color:#666;">คะแนนความขยัน (Effort Points)</div>
+        <div style="font-size:2rem; font-weight:700; color:var(--orange); font-family:'Fredoka';" id="studentEffortScore">0</div>
+        <small>💪 ยิ่งซ้อมยิ่งได้คะแนน!</small>
+      </div>
+      <div class="box-card" style="margin:0; padding:16px 20px;">
+        <div style="font-size:.85rem; color:#666;">การฝึกอย่างต่อเนื่อง (Streak)</div>
+        <div style="font-size:2rem; font-weight:700; color:var(--leaf); font-family:'Fredoka';" id="studentStreak">🔥 1 วัน</div>
+        <small>เข้าเรียนสม่ำเสมอดีมาก!</small>
+      </div>
+      <div class="box-card" style="margin:0; padding:16px 20px;">
+        <div style="font-size:.85rem; color:#666;">ระดับความมั่นใจ</div>
+        <div style="font-size:2rem; font-weight:700; color:var(--lav); font-family:'Fredoka';" id="studentConfidence">Level 1</div>
+        <small>📈 กล้าพูดขึ้นทุกวัน</small>
+      </div>
+    </div>
+
+    <!-- UNIT SELECTOR -->
+    <div class="unit-selector">
+      <button class="unit-btn active" id="ubtn1" onclick="selectUnit(1)">🍱 Unit 1: Food in the Fridge</button>
+      <button class="unit-btn" id="ubtn2" onclick="selectUnit(2)">🏫 Unit 2: Daily Routines</button>
+      <button class="unit-btn" id="ubtn3" onclick="selectUnit(3)">🛑 Unit 3: Safety First</button>
+      <button class="unit-btn" id="ubtn4" onclick="selectUnit(4)">🚲 Unit 4: Having Fun</button>
+    </div>
+
+    <!-- GRAMMAR DISPLAY -->
+    <div class="box-card">
+      <span class="badge-pill" id="unitBadge">Unit 1: Grammar Pattern</span>
+      <h3 id="unitTitle" style="margin-bottom:12px;">แพทเทิร์นประโยคภาษาอังกฤษ</h3>
+      <div class="grid-3" id="grammarGrid"></div>
+    </div>
+
+    <!-- SUB-NAV FOR ACTIVITIES (อยู่ด้านล่างไม่อยู่บนแล้ว) -->
+    <div class="game-tabs">
+      <button class="game-tab-btn active" id="gtabBtn1" onclick="switchGameSubTab('builderSec')">🧩 1. เติมคำแต่งประโยค</button>
+      <button class="game-tab-btn" id="gtabBtn2" onclick="switchGameSubTab('matchSec')">🃏 2. เกมจับคู่ป้าย (12 คู่)</button>
+      <button class="game-tab-btn" id="gtabBtn3" onclick="switchGameSubTab('callSec')">📞 3. FaceTime คุยกับครูส้ม</button>
+      <button class="game-tab-btn" id="gtabBtn4" onclick="switchGameSubTab('surveySec')">📈 4. วัดเจตคติ & ความมั่นใจ</button>
+      <button class="game-tab-btn" id="gtabBtnTeacher" style="display:none;" onclick="switchGameSubTab('teacherSec')">👩‍🏫 5. แดชบอร์ดครู</button>
+    </div>
+
+    <!-- SECTION 1: SENTENCE BUILDER WITH FREE-TEXT INPUT -->
+    <div id="builderSec" class="game-section">
+      <div class="interactive-box">
+        <span class="badge-pill" style="background:var(--lav);">Sentence Builder</span>
+        <h3 style="margin: 10px 0;">ประกอบประโยค (เลือกคำ หรือ พิมพ์เติมเองได้) ✍️</h3>
+        
+        <div style="background:#fff; border:3.5px solid var(--ink); border-radius:20px; padding:20px; margin:15px 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap;" id="builderControls"></div>
+
+        <div style="background:#fff; border:2.5px solid var(--ink); border-radius:14px; padding:12px 18px; font-weight:600; font-size:1.1rem; margin-bottom:15px; color:var(--orange-dark);" id="builderResultText">
+          Loading...
+        </div>
+
+        <button class="btn-primary" style="width:auto; padding:8px 24px; margin:0;" onclick="submitSentence()">เช็กประโยคนี้ ✨</button>
+      </div>
+    </div>
+
+    <!-- SECTION 2: 12-PAIR MATCHING GAME -->
+    <div id="matchSec" class="game-section" style="display:none;">
+      <div class="box-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+          <div>
+            <h2>🃏 เกมจับคู่ป้ายคำศัพท์ (12 คู่จัดเต็ม)</h2>
+            <p style="color:#666; font-size:.9rem;">จับคู่ศัพท์ภาษาอังกฤษกับคำแปล/คำอ่านให้ครบทั้ง 12 คู่!</p>
+          </div>
+          <button onclick="initMatchGame()" style="background:var(--yellow); border:2.5px solid var(--ink); border-radius:12px; padding:8px 16px; font-family:'Mitr'; font-weight:600; cursor:pointer;">🔄 รีเซ็ตเกมใหม่</button>
+        </div>
+
+        <div class="match-grid" id="matchGrid"></div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: AIRLEARN FACETIME CALL -->
+    <div id="callSec" class="game-section" style="display:none;">
+      <div class="box-card" style="text-align:center;">
+        <h2>📞 Kru Som Video Call (เหมือน Airlearn)</h2>
+        <p style="color:#666; font-size:.9rem; margin-bottom:15px;">
+          รับสายและฝึกพูดภาษาอังกฤษกับครูส้ม AI แบบสมจริง พร้อมน้ำเสียงที่มีอารมณ์ขึ้นลง
+        </p>
+
+        <div class="call-container">
+          <div class="call-header">
+            <span>🔴 LIVE FaceTime</span>
+            <span id="callTimer">00:00</span>
+          </div>
+
+          <div class="call-avatar-wrap">
+            <div class="call-avatar" id="kruSomAvatar">🍊</div>
+            <h3 style="margin-top:15px; color:#fff;" id="callStatusTitle">ครูส้ม AI สายโทรเข้า...</h3>
+            <p style="font-size:.85rem; color:#aaa;" id="callStatusSub">Unit: Conversation Practice</p>
+          </div>
+
+          <div class="call-subtitles" id="callSubtitles">
+            กดปุ่มสีเขียว "รับสาย" เพื่อเริ่มคุยกับครูส้มได้เลยค่ะ! 📞
+          </div>
+
+          <div class="call-actions">
+            <button class="btn-call-action btn-decline" onclick="endCall()" title="วางสาย">📵</button>
+            <button class="btn-call-action btn-accept" id="btnAcceptCall" onclick="acceptCall()" title="รับสาย">📞</button>
+            <button class="btn-call-action btn-mic" id="btnMic" onclick="toggleMic()" style="display:none;" title="พูดโต้ตอบ">🎙️</button>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; max-width:420px; margin-left:auto; margin-right:auto;">
+          <input type="text" id="txtCallInput" placeholder="หรือพิมพ์ตอบครูส้มตรงนี้..." style="width:70%; padding:10px; border:2.5px solid var(--ink); border-radius:12px; font-family:'Mitr';">
+          <button onclick="sendTextToCall()" style="padding:10px 15px; background:var(--orange); color:#fff; border:2.5px solid var(--ink); border-radius:12px; font-family:'Mitr'; font-weight:600; cursor:pointer;">ส่ง</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: EMOJI ATTITUDE SURVEY -->
+    <div id="surveySec" class="game-section" style="display:none;">
+      <div class="box-card">
+        <h2>📈 วัดเจตคติและความมั่นใจของคุณ</h2>
+        <p style="color:#666; font-size:.9rem; margin-bottom:20px;">วันนี้นักเรียนรู้สึกยังไงกับการใช้ภาษาอังกฤษบ้างครับ? (กดที่อีโมจิได้เลย!)</p>
+
+        <div style="margin-bottom: 25px;">
+          <b>1. รู้สึกกล้าพูดภาษาอังกฤษมากขึ้นแค่ไหนในวันนี้? 🗣️</b>
+          <div class="emoji-rating" id="q1Rating">
+            <button class="emoji-btn" onclick="rateEmoji(1, 1)">😭</button>
+            <button class="emoji-btn" onclick="rateEmoji(1, 2)">😟</button>
+            <button class="emoji-btn" onclick="rateEmoji(1, 3)">😐</button>
+            <button class="emoji-btn" onclick="rateEmoji(1, 4)">พยายามกระโดด</button>
+            <button class="emoji-btn" onclick="rateEmoji(1, 5)">🤩</button>
+          </div>
+        </div>
+
+        <div>
+          <b>2. สนุกกับการได้คุยสาย FaceTime กับครูส้ม AI แค่ไหน? 📞</b>
+          <div class="emoji-rating" id="q2Rating">
+            <button class="emoji-btn" onclick="rateEmoji(2, 1)">🥱</button>
+            <button class="emoji-btn" onclick="rateEmoji(2, 2)">😕</button>
+            <button class="emoji-btn" onclick="rateEmoji(2, 3)">🙂</button>
+            <button class="emoji-btn" onclick="rateEmoji(2, 4)">😃</button>
+            <button class="emoji-btn" onclick="rateEmoji(2, 5)">🥳</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5: TEACHER DASHBOARD -->
+    <div id="teacherSec" class="game-section" style="display:none;">
+      <div class="box-card">
+        <h2>👩‍🏫 แดชบอร์ดครูผู้สอน — บัญชีนักเรียน 100 คน</h2>
+        <p style="color:#666; font-size:.9rem; margin-bottom:15px;">ติดตามคะแนนความขยันและการทำกิจกรรมของนักเรียนทั้งห้อง</p>
+        <button class="unit-btn active" onclick="initTeacherDemoData()" style="margin-bottom:15px;">⚡ สร้างระบบจำลอง 100 บัญชี</button>
+
+        <div style="max-height: 400px; overflow-y: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>เลขที่</th>
+                <th>ชื่อ-นามสกุล</th>
+                <th>Username</th>
+                <th>ความขยัน (Effort)</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody id="teacherStudentTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  /* DATABASE SYSTEM */
+  function getDB() {
+    const db = localStorage.getItem('pakdee_db');
+    if (!db) {
+      const initialDB = { users: [], currentUserId: null };
+      localStorage.setItem('pakdee_db', JSON.stringify(initialDB));
+      return initialDB;
+    }
+    return JSON.parse(db);
+  }
+
+  function saveDB(db) {
+    localStorage.setItem('pakdee_db', JSON.stringify(db));
+  }
+
+  /* 12-PAIR VOCABULARY DATABASE (เพิ่มคลังศัพท์เด็กแน่นๆ 12 คู่ทุกยูนิต) */
+  const unitsData = {
+    1: {
+      title: "Unit 1: Food in the Fridge 🍱",
+      badge: "Unit 1: Grammar Pattern",
+      grammar: [
+        { title: "There is / isn't + เอกพจน์", desc: '"There is some ham in the fridge."' },
+        { title: "Are there any + พหูพจน์?", desc: '"Are there any french fries?"' },
+        { title: "How many + พหูพจน์?", desc: '"How many pies are there?"' }
+      ],
+      builder: {
+        prefix: "There",
+        sel1: ["is", "are"],
+        sel2: ["some", "any"],
+        suffix: "in the fridge.",
+        correctCondition: (s1, customVal) => true
+      },
+      matchPairs: [
+        { word: "Ham", match: "แฮม 🥓" },
+        { word: "Bacon", match: "เบคอน 🥓" },
+        { word: "Fridge", match: "ตู้เย็น 🧊" },
+        { word: "Pies", match: "ขนมพาย 🥧" },
+        { word: "Apple", match: "แอปเปิล 🍎" },
+        { word: "Milk", match: "นมสด 🥛" },
+        { word: "Cheese", match: "ชีส 🧀" },
+        { word: "Butter", match: "เนย 🧈" },
+        { word: "Juice", match: "น้ำผลไม้ 🧃" },
+        { word: "Carrot", match: "แครอท 🥕" },
+        { word: "Water", match: "น้ำดื่ม 💧" },
+        { word: "Egg", match: "ไข่ไก่ 🥚" }
+      ],
+      callDialogs: [
+        { text: "Hello! Kru Som here! Are you hungry today?", audioText: "Hello there! Kru Som here! Are you hungry today?", pitch: 1.25, rate: 1.0 },
+        { text: "Yummy! What is inside your fridge right now?", audioText: "Yummy! What is inside your fridge right now?", pitch: 1.2, rate: 0.95 }
+      ]
+    },
+    2: {
+      title: "Unit 2: Daily Routines 🏫",
+      badge: "Unit 2: Grammar Pattern",
+      grammar: [
+        { title: "What time do you + V.1?", desc: '"What time do you get up?"' },
+        { title: "I + V.1 + at + [เวลา]", desc: '"I brush my teeth at 6:30 AM."' }
+      ],
+      builder: {
+        prefix: "I",
+        sel1: ["get up", "brush teeth", "go to school"],
+        sel2: ["at", "in"],
+        suffix: "every morning.",
+        correctCondition: () => true
+      },
+      matchPairs: [
+        { word: "Get up", match: "ตื่นนอน ⏰" },
+        { word: "Brush teeth", match: "แปรงฟัน 🪥" },
+        { word: "Wash face", match: "ล้างหน้า 🧼" },
+        { word: "Shower", match: "อาบน้ำ 🚿" },
+        { word: "Breakfast", match: "กินข้าวเช้า 🍳" },
+        { word: "Go to school", match: "ไปโรงเรียน 🚌" },
+        { word: "Study", match: "เรียนหนังสือ 📚" },
+        { word: "Play games", match: "เล่นเกม 🎮" },
+        { word: "Sleep", match: "เข้านอน 🌙" },
+        { word: "Read book", match: "อ่านหนังสือ 📖" },
+        { word: "Homework", match: "การบ้าน 📝" },
+        { word: "Clean room", match: "ทำความสะอาดห้อง 🧹" }
+      ],
+      callDialogs: [
+        { text: "Good morning! What time do you get up?", audioText: "Good morning! What time do you get up?", pitch: 1.2, rate: 1.0 }
+      ]
+    },
+    3: {
+      title: "Unit 3: Safety First 🛑",
+      badge: "Unit 3: Grammar Pattern",
+      grammar: [
+        { title: "You must + V.1", desc: '"You must wear a helmet."' },
+        { title: "You shouldn't + V.1", desc: '"You shouldn\'t play near the road."' }
+      ],
+      builder: {
+        prefix: "You",
+        sel1: ["must", "shouldn't"],
+        sel2: ["wear", "play with"],
+        suffix: "for safety.",
+        correctCondition: () => true
+      },
+      matchPairs: [
+        { word: "Helmet", match: "หมวกกันน็อก 🪖" },
+        { word: "Crosswalk", match: "ทางม้าลาย 🦓" },
+        { word: "Red light", match: "ไฟแดง 🛑" },
+        { word: "Seatbelt", match: "เข็มขัดนิรภัย 🪢" },
+        { word: "Danger", match: "อันตราย ⚠️" },
+        { word: "Safe", match: "ปลอดภัย 🛡️" },
+        { word: "Fire", match: "ไฟ/ความร้อน 🔥" },
+        { word: "Stop", match: "หยุด ✋" },
+        { word: "Look left", match: "มองซ้าย 👈" },
+        { word: "Look right", match: "มองขวา 👉" },
+        { word: "Police", match: "ตำรวจ 👮" },
+        { word: "Careful", match: "ระมัดระวัง 👂" }
+      ],
+      callDialogs: [
+        { text: "Safety first! Do you wear a helmet when riding a bike?", audioText: "Safety first! Do you wear a helmet when riding a bike?", pitch: 1.15, rate: 1.0 }
+      ]
+    },
+    4: {
+      title: "Unit 4: Having Fun 🚲",
+      badge: "Unit 4: Grammar Pattern",
+      grammar: [
+        { title: "How often do you + V.1?", desc: '"How often do you ride a bike?"' },
+        { title: "I + V.1 + twice a week", desc: '"I go swimming twice a week."' }
+      ],
+      builder: {
+        prefix: "I love to",
+        sel1: ["play", "go"],
+        sel2: ["football", "swimming"],
+        suffix: "on weekends.",
+        correctCondition: () => true
+      },
+      matchPairs: [
+        { word: "Swimming", match: "ว่ายน้ำ 🏊" },
+        { word: "Cycling", match: "ปั่นจักรยาน 🚲" },
+        { word: "Football", match: "ฟุตบอล ⚽" },
+        { word: "Running", match: "วิ่งออกกำลัง 🏃" },
+        { word: "Park", match: "สวนสาธารณะ 🌳" },
+        { word: "Music", match: "ฟังเพลง 🎧" },
+        { word: "Drawing", match: "วาดรูป 🎨" },
+        { word: "Dancing", match: "เต้นรำ 💃" },
+        { word: "Singing", match: "ร้องเพลง 🎤" },
+        { word: "Cooking", match: "ทำอาหาร 🍳" },
+        { word: "Puppy", match: "เล่นกับลูกหมา 🐶" },
+        { word: "Happy", match: "มีความสุข 😄" }
+      ],
+      callDialogs: [
+        { text: "Hey there! What is your favorite activity on weekends?", audioText: "Hey there! What is your favorite activity on weekends?", pitch: 1.3, rate: 1.05 }
+      ]
+    }
+  };
+
+  let currentUnit = 1;
+  let authMode = 'login';
+  let currentUser = null;
+  let isCallActive = false;
+  let callTimerInterval = null;
+
+  /* AUTH */
+  function switchAuthMode(mode) {
+    authMode = mode;
+    document.getElementById('tabBtnLogin').classList.toggle('active', mode === 'login');
+    document.getElementById('tabBtnRegister').classList.toggle('active', mode === 'register');
+    document.getElementById('groupName').style.display = mode === 'register' ? 'block' : 'none';
+    document.getElementById('groupStudentId').style.display = mode === 'register' && document.getElementById('btnRoleStudent').classList.contains('active') ? 'block' : 'none';
+    document.getElementById('btnAuthSubmit').textContent = mode === 'login' ? 'เข้าสู่ระบบ 🚀' : 'สร้างบัญชีใช้งาน ✨';
+  }
+
+  function setRole(role) {
+    document.getElementById('btnRoleStudent').classList.toggle('active', role === 'student');
+    document.getElementById('btnRoleTeacher').classList.toggle('active', role === 'teacher');
+    document.getElementById('groupStudentId').style.display = authMode === 'register' && role === 'student' ? 'block' : 'none';
+  }
+
+  function handleAuthSubmit(e) {
+    e.preventDefault();
+    const isTeacher = document.getElementById('btnRoleTeacher').classList.contains('active');
+    const username = document.getElementById('txtUsername').value.trim();
+    const password = document.getElementById('txtPassword').value.trim();
+    const name = document.getElementById('txtName').value.trim() || username;
+    const studentId = document.getElementById('txtStudentId').value;
+
+    const db = getDB();
+
+    if (authMode === 'register') {
+      const existing = db.users.find(u => u.username === username);
+      if (existing) { alert('ชื่อผู้ใช้งานนี้มีในระบบแล้ว!'); return; }
+
+      const newUser = {
+        id: 'user_' + Date.now(),
+        studentNo: isTeacher ? '-' : (studentId || '1'),
+        name: name,
+        username: username,
+        password: password,
+        role: isTeacher ? 'teacher' : 'student',
+        effortScore: 0
+      };
+      db.users.push(newUser);
+      db.currentUserId = newUser.id;
+      saveDB(db);
+      currentUser = newUser;
+    } else {
+      const user = db.users.find(u => u.username === username && u.password === password);
+      if (!user) { alert('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง!'); return; }
+      db.currentUserId = user.id;
+      saveDB(db);
+      currentUser = user;
+    }
+
+    loginSuccess();
+  }
+
+  function loginSuccess() {
+    document.getElementById('authView').classList.remove('active');
+    document.getElementById('appView').classList.add('active');
+    document.getElementById('navUserInfo').style.display = 'flex';
+    document.getElementById('userNameDisplay').textContent = currentUser.name;
+    document.getElementById('userRoleBadge').textContent = currentUser.role === 'teacher' ? 'คุณครู' : `นักเรียน เลขที่ ${currentUser.studentNo || ''}`;
+
+    if (currentUser.role === 'teacher') {
+      document.getElementById('gtabBtnTeacher').style.display = 'inline-block';
+      switchGameSubTab('teacherSec');
+      renderTeacherTable();
+    } else {
+      document.getElementById('gtabBtnTeacher').style.display = 'none';
+      switchGameSubTab('builderSec');
+      selectUnit(1);
+      updateUserStats();
+    }
+  }
+
+  function logout() {
+    const db = getDB();
+    db.currentUserId = null;
+    saveDB(db);
+    currentUser = null;
+    document.getElementById('appView').classList.remove('active');
+    document.getElementById('navUserInfo').style.display = 'none';
+    document.getElementById('authView').classList.add('active');
+  }
+
+  function updateUserStats() {
+    if (!currentUser) return;
+    document.getElementById('studentEffortScore').textContent = currentUser.effortScore || 0;
+  }
+
+  function addEffort(pts) {
+    if (!currentUser) return;
+    currentUser.effortScore = (currentUser.effortScore || 0) + pts;
+    document.getElementById('studentEffortScore').textContent = currentUser.effortScore;
+
+    const db = getDB();
+    const idx = db.users.findIndex(u => u.id === currentUser.id);
+    if (idx !== -1) {
+      db.users[idx].effortScore = currentUser.effortScore;
+      saveDB(db);
+    }
+  }
+
+  /* SUB TAB SWITCHING (ย้ายแถบเกมลงมาด้านล่างเรียบร้อย) */
+  function switchGameSubTab(secId) {
+    document.querySelectorAll('.game-section').forEach(sec => sec.style.display = 'none');
+    document.getElementById(secId).style.display = 'block';
+
+    const btns = document.querySelectorAll('.game-tab-btn');
+    btns.forEach(b => b.classList.remove('active'));
+
+    if (secId === 'builderSec') btns[0].classList.add('active');
+    if (secId === 'matchSec') { btns[1].classList.add('active'); initMatchGame(); }
+    if (secId === 'callSec') { btns[2].classList.add('active'); triggerRingtone(); }
+    if (secId === 'surveySec') btns[3].classList.add('active');
+    if (secId === 'teacherSec') btns[4].classList.add('active');
+  }
+
+  function selectUnit(uNum) {
+    currentUnit = uNum;
+    for(let i=1; i<=4; i++) {
+      document.getElementById(`ubtn${i}`).classList.toggle('active', i === uNum);
+    }
+
+    const u = unitsData[uNum];
+    document.getElementById('unitBadge').textContent = u.badge;
+    document.getElementById('unitTitle').textContent = u.title;
+    
+    const gGrid = document.getElementById('grammarGrid');
+    gGrid.innerHTML = '';
+    u.grammar.forEach(g => {
+      gGrid.innerHTML += `<div style="background:#FFF0DA; border:2.5px solid var(--ink); border-radius:16px; padding:12px;"><b>${g.title}</b><div style="font-size:.85rem; color:#555;">${g.desc}</div></div>`;
+    });
+
+    const bControls = document.getElementById('builderControls');
+    bControls.innerHTML = `
+      <span style="font-size:1.05rem; font-weight:600;">${u.builder.prefix}</span>
+      <select class="builder-select" id="sel1" onchange="updateBuilderText()">${u.builder.sel1.map(o=>`<option value="${o}">${o}</option>`).join('')}</select>
+      <select class="builder-select" id="sel2" onchange="updateBuilderText()">${u.builder.sel2.map(o=>`<option value="${o}">${o}</option>`).join('')}</select>
+      <input type="text" class="builder-input" id="customInput" placeholder="✍️ พิมพ์คำศัพท์เองตรงนี้..." oninput="updateBuilderText()">
+      <span style="font-size:1.05rem; font-weight:600;">${u.builder.suffix}</span>
+    `;
+    updateBuilderText();
+  }
+
+  function updateBuilderText() {
+    const u = unitsData[currentUnit];
+    const s1 = document.getElementById('sel1').value;
+    const s2 = document.getElementById('sel2').value;
+    const custom = document.getElementById('customInput').value.trim() || '[...คำของคุณ...]';
+    document.getElementById('builderResultText').textContent = `${u.builder.prefix} ${s1} ${s2} ${custom} ${u.builder.suffix}`;
+  }
+
+  function submitSentence() {
+    const custom = document.getElementById('customInput').value.trim();
+    if(!custom) {
+      alert('ลองพิมพ์เติมคำศัพท์ของตัวเองในช่องว่างก่อนกดส่งนะคร้าบ! ✍️');
+      return;
+    }
+    alert(`🎉 สุดยอดเลย! คุณแต่งประโยค: "${document.getElementById('builderResultText').textContent}" ได้ดีมาก +5 แต้มความขยัน`);
+    addEffort(5);
+  }
+
+  /* 12-PAIR MATCHING GAME */
+  let matchSelected = null;
+
+  function initMatchGame() {
+    const pairs = unitsData[currentUnit].matchPairs; // 12 pairs
+    let cards = [];
+    pairs.forEach((p, idx) => {
+      cards.push({ id: idx, text: p.word });
+      cards.push({ id: idx, text: p.match });
+    });
+
+    cards.sort(() => Math.random() - 0.5);
+
+    const grid = document.getElementById('matchGrid');
+    grid.innerHTML = '';
+    cards.forEach((c, i) => {
+      grid.innerHTML += `<div class="match-card" id="mcard_${i}" onclick="clickMatchCard(${i}, ${c.id})">${c.text}</div>`;
+    });
+
+    matchSelected = null;
+  }
+
+  function clickMatchCard(index, pairId) {
+    const cardEl = document.getElementById(`mcard_${index}`);
+    if (cardEl.classList.contains('matched')) return;
+
+    if (!matchSelected) {
+      matchSelected = { index, pairId, el: cardEl };
+      cardEl.classList.add('selected');
+    } else {
+      if (matchSelected.index === index) return;
+
+      if (matchSelected.pairId === pairId) {
+        cardEl.classList.add('matched');
+        matchSelected.el.classList.add('matched');
+        matchSelected.el.classList.remove('selected');
+        matchSelected = null;
+        addEffort(3);
+      } else {
+        cardEl.classList.add('selected');
+        setTimeout(() => {
+          cardEl.classList.remove('selected');
+          if (matchSelected) matchSelected.el.classList.remove('selected');
+          matchSelected = null;
+        }, 400);
+      }
+    }
+  }
+
+  /* EMOJI RATING SYSTEM */
+  function rateEmoji(qNum, score) {
+    const container = document.getElementById(`q${qNum}Rating`);
+    const btns = container.querySelectorAll('.emoji-btn');
+    btns.forEach((b, i) => {
+      b.classList.toggle('selected', i === (score - 1));
+    });
+    addEffort(3);
+  }
+
+  /* FACETIME SPEECH SYNTHESIS */
+  let audioCtx = null;
+  let ringtoneInterval = null;
+
+  function triggerRingtone() {
+    if (isCallActive) return;
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      playRingtoneBeep();
+      ringtoneInterval = setInterval(playRingtoneBeep, 2000);
+    } catch(e) {}
+  }
+
+  function playRingtoneBeep() {
+    if (!audioCtx || isCallActive) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.5);
+  }
+
+  function acceptCall() {
+    clearInterval(ringtoneInterval);
+    isCallActive = true;
+    document.getElementById('btnAcceptCall').style.display = 'none';
+    document.getElementById('btnMic').style.display = 'flex';
+    document.getElementById('callStatusTitle').textContent = 'กำลังคุยสายกับ ครูส้ม 🍊';
+    
+    startCallTimer();
+    speakKruSom(unitsData[currentUnit].callDialogs[0]);
+    addEffort(10);
+  }
+
+  function endCall() {
+    clearInterval(ringtoneInterval);
+    clearInterval(callTimerInterval);
+    isCallActive = false;
+    document.getElementById('btnAcceptCall').style.display = 'flex';
+    document.getElementById('btnMic').style.display = 'none';
+    document.getElementById('kruSomAvatar').classList.remove('speaking');
+    document.getElementById('callStatusTitle').textContent = 'ครูส้ม AI สายโทรเข้า...';
+    document.getElementById('callSubtitles').textContent = 'วางสายเรียบร้อย กดรับสายเพื่อเริ่มใหม่';
+    document.getElementById('callTimer').textContent = '00:00';
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  }
+
+  function startCallTimer() {
+    let sec = 0;
+    clearInterval(callTimerInterval);
+    callTimerInterval = setInterval(() => {
+      sec++;
+      const m = String(Math.floor(sec/60)).padStart(2, '0');
+      const s = String(sec%60).padStart(2, '0');
+      document.getElementById('callTimer').textContent = `${m}:${s}`;
+    }, 1000);
+  }
+
+  function speakKruSom(dialogObj) {
+    document.getElementById('callSubtitles').textContent = dialogObj.text;
+    document.getElementById('kruSomAvatar').classList.add('speaking');
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(dialogObj.audioText || dialogObj.text);
+      utter.lang = 'en-US';
+      utter.pitch = dialogObj.pitch || 1.25;
+      utter.rate = dialogObj.rate || 1.0;
+
+      utter.onend = () => {
+        document.getElementById('kruSomAvatar').classList.remove('speaking');
+      };
+
+      window.speechSynthesis.speak(utter);
+    } else {
+      setTimeout(() => document.getElementById('kruSomAvatar').classList.remove('speaking'), 2000);
+    }
+  }
+
+  function sendTextToCall() {
+    if (!isCallActive) { alert('กดรับสาย FaceTime ก่อนนะคร้าบ!'); return; }
+    const input = document.getElementById('txtCallInput');
+    const val = input.value.trim();
+    if (!val) return;
+
+    input.value = '';
+    document.getElementById('callSubtitles').textContent = `คุณ: "${val}"`;
+
+    setTimeout(() => {
+      speakKruSom({
+        text: `Super cool! You said "${val}". Keep speaking!`,
+        audioText: `Super cool! You said ${val}. Keep speaking!`,
+        pitch: 1.3,
+        rate: 1.0
+      });
+      addEffort(5);
+    }, 800);
+  }
+
+  function toggleMic() {
+    if (!isCallActive) return;
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('เบราว์เซอร์ไม่รองรับการจำเสียงพูด พิมพ์ตอบแทนได้เลยครับ');
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+
+    document.getElementById('callSubtitles').textContent = '🎙️ ครูส้มกำลังฟังคุณพูดอยู่...';
+
+    recognition.onresult = function(event) {
+      const speechToText = event.results[0][0].transcript;
+      document.getElementById('callSubtitles').textContent = `คุณพูดว่า: "${speechToText}"`;
+      setTimeout(() => {
+        speakKruSom({
+          text: `Awesome accent! You said: "${speechToText}"!`,
+          audioText: `Awesome accent! You said ${speechToText}!`,
+          pitch: 1.3,
+          rate: 1.0
+        });
+        addEffort(8);
+      }, 800);
+    };
+
+    recognition.start();
+  }
+
+  /* TEACHER DASHBOARD FOR 100 STUDENTS */
+  function initTeacherDemoData() {
+    const db = getDB();
+    for (let i = 1; i <= 100; i++) {
+      const username = `student${i}`;
+      if (!db.users.find(u => u.username === username)) {
+        db.users.push({
+          id: `st_${i}`,
+          studentNo: i,
+          name: `นักเรียน เลขที่ ${i}`,
+          username: username,
+          password: `p${i}`,
+          role: 'student',
+          effortScore: Math.floor(Math.random() * 180) + 10
+        });
+      }
+    }
+    saveDB(db);
+    renderTeacherTable();
+    alert('สร้างบัญชีนักเรียนครบ 100 บัญชีแล้ว!');
+  }
+
+  function renderTeacherTable() {
+    const db = getDB();
+    const students = db.users.filter(u => u.role === 'student');
+    const tbody = document.getElementById('teacherStudentTable');
+    tbody.innerHTML = '';
+
+    students.forEach(s => {
+      tbody.innerHTML += `
+        <tr>
+          <td><b>${s.studentNo || '-'}</b></td>
+          <td>${s.name}</td>
+          <td><code>${s.username}</code></td>
+          <td><span class="chip-tag" style="background:var(--yellow);">${s.effortScore || 0} แต้ม</span></td>
+          <td><span class="chip-tag" style="background:var(--mint); color:#fff;">พร้อมใช้งาน</span></td>
+        </tr>
+      `;
+    });
+  }
+
+  window.onload = function() {
+    const db = getDB();
+    if (db.currentUserId) {
+      const user = db.users.find(u => u.id === db.currentUserId);
+      if (user) {
+        currentUser = user;
+        loginSuccess();
+      }
+    }
+  };
+</script>
+</body>
+</html>
